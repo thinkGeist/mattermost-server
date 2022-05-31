@@ -13,18 +13,18 @@ type FuncMetaTypeConv func(val interface{}) (newVal interface{}, converted bool)
 // EventData -- The new audit log schema proposes that all audit log events include
 // the EventData struct.
 type EventData struct {
-	Parameters       interface{} `json:"parameters"`         // Any parameters if relevant (and outside the actual payload)
-	NewData          Auditable   `json:"new_data"`           // the actual payload being processed. In most cases the JSON payload deserialized into interface{}
-	PriorState       Auditable   `json:"prior_state"`        // Prior state of the object being modified, nil if no prior state
-	ResultingState   Auditable   `json:"resulting_state"`    // Resulting object after creating or modifying it
-	ResultObjectType string      `json:"result_object_type"` // string representation of the object type. eg. "post"
+	Parameters       map[string]interface{} `json:"parameters"`         // Any parameters if relevant (and outside the actual payload)
+	NewData          map[string]interface{} `json:"new_data"`           // the actual payload being processed. In most cases the JSON payload deserialized into interface{}
+	PriorState       map[string]interface{} `json:"prior_state"`        // Prior state of the object being modified, nil if no prior state
+	ResultingState   map[string]interface{} `json:"resulting_state"`    // Resulting object after creating or modifying it
+	ResultObjectType string                 `json:"result_object_type"` // string representation of the object type. eg. "post"
 }
 
 // Auditable for sensitive object classes, consider implementing Auditable and include whatever the
 // AuditableObject returns. For example: it's likely OK to write a user object to the
 // audit logs, but not the user password in cleartext or hashed form
 type Auditable interface {
-	AuditableObject() interface{}
+	AuditableObject() map[string]interface{}
 }
 
 type AuditableMap map[string]interface{}
@@ -75,6 +75,8 @@ func (rec *Record) Fail() {
 
 // AddMeta adds a single name/value pair to this audit record's metadata.
 func (rec *Record) AddMeta(name string, val interface{}) {
+	rec.AddMetadata(nil, nil, nil, name) // TODO
+
 	if rec.Meta == nil {
 		rec.Meta = Meta{}
 	}
@@ -102,9 +104,9 @@ func (rec *Record) AddMetadata(newObject Auditable,
 	resultObject Auditable,
 	resultObjectType string) {
 	eventData := EventData{
-		NewData:          newObject,
-		PriorState:       priorObject,
-		ResultingState:   resultObject,
+		NewData:          newObject.AuditableObject(),
+		PriorState:       priorObject.AuditableObject(),
+		ResultingState:   resultObject.AuditableObject(),
 		ResultObjectType: resultObjectType,
 	}
 	rec.EventData = eventData
