@@ -62,11 +62,19 @@ type Channel struct {
 }
 
 // Example implementation of the Auditable interface.
-// TODO Review and actually implement this
-func (c *Channel) AuditableObject() interface{} {
+func (c *Channel) AuditableObject() map[string]interface{} {
 	return map[string]interface{}{
-		"id":           c.Id,
-		"display_name": c.DisplayName,
+		"create_at":         c.CreateAt,
+		"creator_id":        c.CreatorId,
+		"delete_at":         c.DeleteAt,
+		"group_constrained": c.GroupConstrained,
+		"id":                c.Id,
+		"last_post_at":      c.LastPostAt,
+		"last_root_post_at": c.LastRootPostAt,
+		"scheme_id":         c.SchemeId,
+		"team_id":           c.TeamId,
+		"type":              c.Type,
+		"update_at":         c.UpdateAt,
 	}
 }
 
@@ -90,8 +98,12 @@ type ChannelPatch struct {
 	GroupConstrained *bool   `json:"group_constrained"`
 }
 
-func (c *ChannelPatch) AuditableObject() interface{} {
-	return map[string]interface{}{}
+func (c *ChannelPatch) AuditableObject() map[string]interface{} {
+	return map[string]interface{}{
+		"header":            c.Header,
+		"group_constrained": c.GroupConstrained,
+		"purpose":           c.Purpose,
+	}
 }
 
 type ChannelForExport struct {

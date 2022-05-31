@@ -93,7 +93,7 @@ type SchemeRoles struct {
 	SchemeGuest bool `json:"scheme_guest"`
 }
 
-func (s *SchemeRoles) AuditableObject() interface{} {
+func (s *SchemeRoles) AuditableObject() map[string]interface{} {
 	return map[string]interface{}{}
 }
 

@@ -29,14 +29,14 @@ type Auditable interface {
 
 type AuditableMap map[string]interface{}
 
-func (a AuditableMap) AuditableObject() interface{} {
+func (a AuditableMap) AuditableObject() map[string]interface{} {
 	return a
 }
 
 type AuditableStringArray []string
 
 // wrap a string array in a map so that the object to be audited is always a dictionary, never array
-func (a AuditableStringArray) AuditableObject() interface{} {
+func (a AuditableStringArray) AuditableObject() map[string]interface{} {
 	return map[string]interface{}{
 		"array": a,
 	}
@@ -44,8 +44,12 @@ func (a AuditableStringArray) AuditableObject() interface{} {
 
 type AuditableStringMap map[string]string
 
-func (a AuditableStringMap) AuditableObject() interface{} {
-	return a
+func (a AuditableStringMap) AuditableObject() map[string]interface{} {
+	var r map[string]interface{}
+	for key, val := range a {
+		r[key] = val
+	}
+	return r
 }
 
 // Record provides a consistent set of fields used for all audit logging.
@@ -75,8 +79,6 @@ func (rec *Record) Fail() {
 
 // AddMeta adds a single name/value pair to this audit record's metadata.
 func (rec *Record) AddMeta(name string, val interface{}) {
-	rec.AddMetadata(nil, nil, nil, name) // TODO
-
 	if rec.Meta == nil {
 		rec.Meta = Meta{}
 	}
@@ -103,10 +105,25 @@ func (rec *Record) AddMetadata(newObject Auditable,
 	priorObject Auditable,
 	resultObject Auditable,
 	resultObjectType string) {
+
+	var change map[string]interface{}
+	var prior map[string]interface{}
+	var result map[string]interface{}
+
+	if newObject != nil {
+		change = newObject.AuditableObject()
+	}
+	if priorObject != nil {
+		prior = priorObject.AuditableObject()
+	}
+	if resultObject != nil {
+		result = resultObject.AuditableObject()
+	}
+
 	eventData := EventData{
-		NewData:          newObject.AuditableObject(),
-		PriorState:       priorObject.AuditableObject(),
-		ResultingState:   resultObject.AuditableObject(),
+		NewData:          change,
+		PriorState:       prior,
+		ResultingState:   result,
 		ResultObjectType: resultObjectType,
 	}
 	rec.EventData = eventData
