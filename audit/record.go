@@ -78,55 +78,30 @@ func (rec *Record) Fail() {
 }
 
 // AddMeta adds a single name/value pair to this audit record's metadata.
-func (rec *Record) AddMeta(name string, val interface{}) {
-	if rec.Meta == nil {
-		rec.Meta = Meta{}
-	}
-
-	// possibly convert val to something better suited for serializing
-	// via zero or more conversion functions.
-	var converted bool
-	for _, conv := range rec.metaConv {
-		val, converted = conv(val)
-		if converted {
-			break
-		}
-	}
-
-	rec.Meta[name] = val
+// 6/1/22 With the new audit log schema being implemented, this method is
+// patched to add the new_data object to the new event_data structure
+func (rec *Record) AddMeta(name string, val Auditable) {
+	rec.AddMetadata(val, nil, nil, name)
 }
 
 // AddMetadata Populates the `event_data` structure for the audit log entry. See above
 // for description of the parameters
-// TODO: Consider additionally implementing individual setters for the different keys in EventData.
-// For example, it might make sense to include the `new_data` value for audit log entries for
-// failed API calls.
 func (rec *Record) AddMetadata(newObject Auditable,
 	priorObject Auditable,
 	resultObject Auditable,
 	resultObjectType string) {
 
-	var change map[string]interface{}
-	var prior map[string]interface{}
-	var result map[string]interface{}
+	rec.EventData.ResultObjectType = resultObjectType
 
 	if newObject != nil {
-		change = newObject.AuditableObject()
+		rec.EventData.NewData = newObject.AuditableObject()
 	}
 	if priorObject != nil {
-		prior = priorObject.AuditableObject()
+		rec.EventData.PriorState = priorObject.AuditableObject()
 	}
 	if resultObject != nil {
-		result = resultObject.AuditableObject()
+		rec.EventData.ResultingState = resultObject.AuditableObject()
 	}
-
-	eventData := EventData{
-		NewData:          change,
-		PriorState:       prior,
-		ResultingState:   result,
-		ResultObjectType: resultObjectType,
-	}
-	rec.EventData = eventData
 }
 
 // AddMetaTypeConverter adds a function capable of converting meta field types
