@@ -40,8 +40,8 @@ func (c *Context) LogAuditRecWithLevel(rec *audit.Record, level mlog.Level) {
 		return
 	}
 	if c.Err != nil {
-		rec.AddMeta("err", c.Err.Id)
-		rec.AddMeta("code", c.Err.StatusCode)
+		rec.AddErrorDescription(c.Err.Id)
+		rec.AddErrorCode(c.Err.StatusCode)
 		if c.Err.Id == "api.context.permissions.app_error" {
 			level = app.LevelPerms
 		}

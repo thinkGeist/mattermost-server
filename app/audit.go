@@ -70,10 +70,10 @@ func (a *App) LogAuditRecWithLevel(rec *audit.Record, level mlog.Level, err erro
 	}
 	if err != nil {
 		if appErr, ok := err.(*model.AppError); ok {
-			rec.AddMeta("err", appErr.Error())
-			rec.AddMeta("code", appErr.StatusCode)
+			rec.AddErrorDescription(appErr.Error())
+			rec.AddErrorCode(appErr.StatusCode)
 		} else {
-			rec.AddMeta("err", err)
+			rec.AddErrorDescription(err.Error())
 		}
 		rec.Fail()
 	}

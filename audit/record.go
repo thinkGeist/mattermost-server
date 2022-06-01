@@ -52,18 +52,24 @@ func (a AuditableStringMap) AuditableObject() map[string]interface{} {
 	return r
 }
 
+type EventError struct {
+	ErrorDescription string   `json:"description"`
+	ErrorCode        int      `json:"status_code,omitempty"`
+	ErrorList        []string `json:"error_list,omitempty"`
+}
+
 // Record provides a consistent set of fields used for all audit logging.
 type Record struct {
-	APIPath   string    `json:"api_path"`
-	EventName string    `json:"event_name"`
-	EventData EventData `json:"event_data"`
-	Error     string    `json:"error"`
-	Status    string    `json:"status"`
-	UserID    string    `json:"user_id"`
-	SessionID string    `json:"session_id"`
-	Client    string    `json:"client"`
-	IPAddress string    `json:"ip_address"`
-	Meta      Meta      `json:"meta"`
+	APIPath   string     `json:"api_path"`
+	EventName string     `json:"event_name"`
+	EventData EventData  `json:"event_data"`
+	Status    string     `json:"status"`
+	UserID    string     `json:"user_id"`
+	SessionID string     `json:"session_id"`
+	Client    string     `json:"client"`
+	IPAddress string     `json:"ip_address"`
+	Meta      Meta       `json:"meta"`
+	Error     EventError `json:"error"`
 	metaConv  []FuncMetaTypeConv
 }
 
@@ -82,6 +88,18 @@ func (rec *Record) Fail() {
 // patched to add the new_data object to the new event_data structure
 func (rec *Record) AddMeta(name string, val Auditable) {
 	rec.AddMetadata(val, nil, nil, name)
+}
+
+func (rec *Record) AddErrorDescription(errorDescription string) {
+	rec.Error.ErrorDescription = errorDescription
+}
+
+func (rec *Record) AddErrorCode(errorCode int) {
+	rec.Error.ErrorCode = errorCode
+}
+
+func (rec *Record) AddErrorList(errorList []string) {
+	rec.Error.ErrorList = errorList
 }
 
 // AddMetadata Populates the `event_data` structure for the audit log entry. See above
