@@ -64,8 +64,8 @@ func (c *Context) MakeAuditRecord(event string, initialStatus string) *audit.Rec
 			IpAddress: c.AppContext.IPAddress(),
 		},
 		Meta: map[string]interface{}{
-			"api_path":   c.AppContext.Path(),
-			"cluster_id": c.App.GetClusterId(),
+			audit.KeyAPIPath:   c.AppContext.Path(),
+			audit.KeyClusterID: c.App.GetClusterId(),
 		},
 		EventData: audit.EventData{
 			Parameters:       map[string]interface{}{},

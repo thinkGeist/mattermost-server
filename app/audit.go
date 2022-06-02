@@ -94,8 +94,8 @@ func (a *App) MakeAuditRecord(event string, initialStatus string) *audit.Record 
 		EventName: event,
 		Status:    initialStatus,
 		Meta: map[string]interface{}{
-			"api_path":   "",
-			"cluster_id": a.GetClusterId(),
+			audit.KeyAPIPath:   "",
+			audit.KeyClusterID: a.GetClusterId(),
 		},
 		Actor: audit.EventActor{
 			UserId:    userID,
