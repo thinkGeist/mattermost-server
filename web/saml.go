@@ -103,7 +103,9 @@ func completeSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.LogAudit("attempt")
 
 	action := relayProps["action"]
-	auditRec.AddMeta("action", action)
+	auditRec.AddMeta("action", audit.AuditableMap{
+		"action": action,
+	})
 
 	isMobile := action == model.OAuthActionMobile
 	redirectURL := ""
@@ -159,8 +161,10 @@ func completeSaml(c *Context, w http.ResponseWriter, r *http.Request) {
 			c.Err = err
 			return
 		}
-		auditRec.AddMeta("revoked_user_id", user.Id)
-		auditRec.AddMeta("revoked", "Revoked all sessions for user")
+		auditRec.AddEventParametersMap(map[string]interface{}{
+			"revoked_user_id": user.Id,
+			"revoked":         "Revoked all sessions for user",
+		})
 
 		c.LogAuditWithUserId(user.Id, "Revoked all sessions for user")
 		c.App.Srv().Go(func() {

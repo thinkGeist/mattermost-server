@@ -288,7 +288,7 @@ func (a *App) ExtendSessionExpiryIfNeeded(session *model.Session) bool {
 	newExpiry := now + sessionLength
 	if err := a.ch.srv.userService.ExtendSessionExpiry(session, newExpiry); err != nil {
 		mlog.Error("Failed to update ExpiresAt", mlog.String("user_id", session.UserId), mlog.String("session_id", session.Id), mlog.Err(err))
-		auditRec.AddErrorDescription(err.Error())
+		auditRec.AddError(audit.EventError{Description: err.Error()})
 		return false
 	}
 

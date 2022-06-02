@@ -10,14 +10,41 @@ type Meta map[string]interface{}
 // that serializes well for audit records.
 type FuncMetaTypeConv func(val interface{}) (newVal interface{}, converted bool)
 
+// Record provides a consistent set of fields used for all audit logging.
+type Record struct {
+	EventName string                 `json:"event_name"`
+	Status    string                 `json:"status"`
+	EventData EventData              `json:"event"`
+	Actor     EventActor             `json:"actor"`
+	Meta      map[string]interface{} `json:"meta"`
+	Error     EventError             `json:"error"`
+}
+
 // EventData -- The new audit log schema proposes that all audit log events include
 // the EventData struct.
 type EventData struct {
-	Parameters       map[string]interface{} `json:"parameters"`         // Any parameters if relevant (and outside the actual payload)
-	NewData          map[string]interface{} `json:"new_data"`           // the actual payload being processed. In most cases the JSON payload deserialized into interface{}
-	PriorState       map[string]interface{} `json:"prior_state"`        // Prior state of the object being modified, nil if no prior state
-	ResultingState   map[string]interface{} `json:"resulting_state"`    // Resulting object after creating or modifying it
-	ResultObjectType string                 `json:"result_object_type"` // string representation of the object type. eg. "post"
+	Parameters       map[string]interface{} `json:"parameters"`      // the actual payload being processed. In most cases the JSON payload deserialized into interface{}
+	PriorState       map[string]interface{} `json:"prior_state"`     // Prior state of the object being modified, nil if no prior state
+	ResultingState   map[string]interface{} `json:"resulting_state"` // Resulting object after creating or modifying it
+	ResultObjectType string                 `json:"object_type"`     // string representation of the object type. eg. "post"
+}
+
+type EventActor struct {
+	UserId    string `json:"user_id"`
+	SessionId string `json:"session_id"`
+	Client    string `json:"client"`
+	IpAddress string `json:"ip_address"`
+}
+
+type EventMeta struct {
+	ApiPath   string `json:"api_path"`
+	ClusterId string `json:"cluster_id"`
+}
+
+type EventError struct {
+	Description string   `json:"description"`
+	Code        int      `json:"status_code,omitempty"`
+	ErrorList   []string `json:"error_list,omitempty"`
 }
 
 // Auditable for sensitive object classes, consider implementing Auditable and include whatever the
@@ -52,27 +79,6 @@ func (a AuditableStringMap) AuditableObject() map[string]interface{} {
 	return r
 }
 
-type EventError struct {
-	ErrorDescription string   `json:"description"`
-	ErrorCode        int      `json:"status_code,omitempty"`
-	ErrorList        []string `json:"error_list,omitempty"`
-}
-
-// Record provides a consistent set of fields used for all audit logging.
-type Record struct {
-	APIPath   string     `json:"api_path"`
-	EventName string     `json:"event_name"`
-	EventData EventData  `json:"event_data"`
-	Status    string     `json:"status"`
-	UserID    string     `json:"user_id"`
-	SessionID string     `json:"session_id"`
-	Client    string     `json:"client"`
-	IPAddress string     `json:"ip_address"`
-	Meta      Meta       `json:"meta"`
-	Error     EventError `json:"error"`
-	metaConv  []FuncMetaTypeConv
-}
-
 // Success marks the audit record status as successful.
 func (rec *Record) Success() {
 	rec.Status = Success
@@ -86,33 +92,47 @@ func (rec *Record) Fail() {
 // AddMeta adds a single name/value pair to this audit record's metadata.
 // 6/1/22 With the new audit log schema being implemented, this method is
 // patched to add the new_data object to the new event_data structure
-func (rec *Record) AddMeta(name string, val Auditable) {
-	rec.AddMetadata(val, nil, nil, name)
+func (rec *Record) AddMeta(name string, val interface{}) {
+	rec.EventData.Parameters[name] = val
 }
 
-func (rec *Record) AddErrorDescription(errorDescription string) {
-	rec.Error.ErrorDescription = errorDescription
-}
-
-func (rec *Record) AddErrorCode(errorCode int) {
-	rec.Error.ErrorCode = errorCode
+func (rec *Record) AddError(error EventError) {
+	rec.Error = error
 }
 
 func (rec *Record) AddErrorList(errorList []string) {
 	rec.Error.ErrorList = errorList
 }
 
+func (rec *Record) AddEventParametersAuditable(parameters Auditable) {
+	rec.EventData.Parameters = parameters.AuditableObject()
+}
+
+func (rec *Record) AddEventParametersMap(parameters map[string]interface{}) {
+	rec.EventData.Parameters = parameters
+}
+
+// "legacy" api, add single key-val
+func (rec *Record) AddEventParameter(key string, val interface{}) {
+	rec.EventData.Parameters[key] = val
+	rec.EventData.ResultObjectType = key
+}
+
+func (rec *Record) AddEventMeta(key string, val interface{}) {
+	rec.Meta[key] = val
+}
+
 // AddMetadata Populates the `event_data` structure for the audit log entry. See above
 // for description of the parameters
-func (rec *Record) AddMetadata(newObject Auditable,
+func (rec *Record) AddMetadata(parameters Auditable,
 	priorObject Auditable,
 	resultObject Auditable,
 	resultObjectType string) {
 
 	rec.EventData.ResultObjectType = resultObjectType
 
-	if newObject != nil {
-		rec.EventData.NewData = newObject.AuditableObject()
+	if parameters != nil {
+		rec.EventData.Parameters = parameters.AuditableObject()
 	}
 	if priorObject != nil {
 		rec.EventData.PriorState = priorObject.AuditableObject()
@@ -125,5 +145,5 @@ func (rec *Record) AddMetadata(newObject Auditable,
 // AddMetaTypeConverter adds a function capable of converting meta field types
 // into something more suitable for serialization.
 func (rec *Record) AddMetaTypeConverter(f FuncMetaTypeConv) {
-	rec.metaConv = append(rec.metaConv, f)
+	//rec.metaConv = append(rec.metaConv, f)
 }

@@ -838,7 +838,7 @@ func addTeamMembers(c *Context, w http.ResponseWriter, r *http.Request) {
 				errList = append(errList, model.TeamMemberWithErrorToString(m))
 			}
 		}
-		auditRec.AddErrorList(errList)
+		auditRec.AddError(audit.EventError{ErrorList: errList})
 	}
 	if err != nil {
 		c.Err = err
@@ -1340,7 +1340,7 @@ func inviteUsersToTeam(c *Context, w http.ResponseWriter, r *http.Request) {
 					errList = append(errList, model.EmailInviteWithErrorToString(inv))
 				}
 			}
-			auditRec.AddErrorList(errList)
+			auditRec.AddError(audit.EventError{ErrorList: errList})
 		}
 		if err != nil {
 			c.Err = err
@@ -1442,7 +1442,7 @@ func inviteGuestsToChannels(c *Context, w http.ResponseWriter, r *http.Request) 
 			for _, inv := range invitesWithError {
 				errList = append(errList, model.EmailInviteWithErrorToString(inv))
 			}
-			auditRec.AddErrorList(errList)
+			auditRec.AddError(audit.EventError{ErrorList: errList})
 			c.Err = err
 			return
 		}

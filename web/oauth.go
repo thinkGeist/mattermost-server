@@ -223,8 +223,11 @@ func getAccessToken(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("getAccessToken", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("grant_type", grantType)
-	auditRec.AddMeta("client_id", clientId)
+	auditable := audit.AuditableMap{
+		"grant_type": grantType,
+		"client_id":  clientId,
+	}
+	auditRec.AddMetadata(auditable, nil, nil, "oauth_attempt")
 	c.LogAudit("attempt")
 
 	accessRsp, err := c.App.GetOAuthAccessTokenForCodeFlow(clientId, grantType, redirectURI, code, secret, refreshToken)

@@ -152,7 +152,7 @@ func localInviteUsersToTeam(c *Context, w http.ResponseWriter, r *http.Request) 
 			}
 			invitesWithErrors = append(invitesWithErrors, invite)
 		}
-		auditRec.AddErrorList(errList)
+		auditRec.AddError(audit.EventError{ErrorList: errList})
 		if len(goodEmails) > 0 {
 			var eErr error
 			var invitesWithErrors2 []*model.EmailInviteWithError

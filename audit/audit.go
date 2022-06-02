@@ -32,31 +32,26 @@ func (a *Audit) Init(maxQueueSize int) {
 // LogRecord emits an audit record with complete info.
 func (a *Audit) LogRecord(level mlog.Level, rec Record) {
 	flds := []mlog.Field{
-		mlog.String(KeyAPIPath, rec.APIPath),
-		mlog.String(KeyEvent, rec.EventName),
+		mlog.String("event_name", rec.EventName),
 		mlog.String(KeyStatus, rec.Status),
-		mlog.String(KeyUserID, rec.UserID),
-		mlog.String(KeySessionID, rec.SessionID),
-		mlog.String(KeyClient, rec.Client),
-		mlog.String(KeyIPAddress, rec.IPAddress),
-		mlog.Any(KeyEventData, rec.EventData),
+		mlog.Any("actor", rec.Actor),
+		mlog.Any("event", rec.EventData),
+		mlog.Any("meta", rec.Meta),
+		mlog.Any("error", rec.Error),
 	}
 
-	for k, v := range rec.Meta {
-		flds = append(flds, mlog.Any(k, v))
-	}
 	a.logger.Log(level, "", flds...)
 }
 
 // Log emits an audit record based on minimum required info.
 func (a *Audit) Log(level mlog.Level, path string, evt string, status string, userID string, sessionID string, meta Meta) {
 	a.LogRecord(level, Record{
-		APIPath:   path,
 		EventName: evt,
 		Status:    status,
-		UserID:    userID,
-		SessionID: sessionID,
-		Meta:      meta,
+		Actor: EventActor{
+			UserId:    userID,
+			SessionId: sessionID,
+		},
 	})
 }
 
