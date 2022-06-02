@@ -17,16 +17,16 @@ type Record struct {
 	EventData EventData              `json:"event"`
 	Actor     EventActor             `json:"actor"`
 	Meta      map[string]interface{} `json:"meta"`
-	Error     EventError             `json:"error"`
+	Error     EventError             `json:"error,omitempty"`
 }
 
 // EventData -- The new audit log schema proposes that all audit log events include
 // the EventData struct.
 type EventData struct {
-	Parameters       map[string]interface{} `json:"parameters"`      // the actual payload being processed. In most cases the JSON payload deserialized into interface{}
-	PriorState       map[string]interface{} `json:"prior_state"`     // Prior state of the object being modified, nil if no prior state
-	ResultingState   map[string]interface{} `json:"resulting_state"` // Resulting object after creating or modifying it
-	ResultObjectType string                 `json:"object_type"`     // string representation of the object type. eg. "post"
+	Parameters     map[string]interface{} `json:"parameters"`      // the actual payload being processed. In most cases the JSON payload deserialized into interface{}
+	PriorState     map[string]interface{} `json:"prior_state"`     // Prior state of the object being modified, nil if no prior state
+	ResultingState map[string]interface{} `json:"resulting_state"` // Resulting object after creating or modifying it
+	ObjectType     string                 `json:"object_type"`     // string representation of the object type. eg. "post"
 }
 
 type EventActor struct {
@@ -42,7 +42,7 @@ type EventMeta struct {
 }
 
 type EventError struct {
-	Description string   `json:"description"`
+	Description string   `json:"description,omitempty"`
 	Code        int      `json:"status_code,omitempty"`
 	ErrorList   []string `json:"error_list,omitempty"`
 }
@@ -104,8 +104,9 @@ func (rec *Record) AddErrorList(errorList []string) {
 	rec.Error.ErrorList = errorList
 }
 
-func (rec *Record) AddEventParametersAuditable(parameters Auditable) {
+func (rec *Record) AddEventParametersAuditable(auditableType string, parameters Auditable) {
 	rec.EventData.Parameters = parameters.AuditableObject()
+	rec.EventData.ObjectType = auditableType
 }
 
 func (rec *Record) AddEventParametersMap(parameters map[string]interface{}) {
@@ -115,7 +116,7 @@ func (rec *Record) AddEventParametersMap(parameters map[string]interface{}) {
 // "legacy" api, add single key-val
 func (rec *Record) AddEventParameter(key string, val interface{}) {
 	rec.EventData.Parameters[key] = val
-	rec.EventData.ResultObjectType = key
+	rec.EventData.ObjectType = key
 }
 
 func (rec *Record) AddEventMeta(key string, val interface{}) {
@@ -129,7 +130,7 @@ func (rec *Record) AddMetadata(parameters Auditable,
 	resultObject Auditable,
 	resultObjectType string) {
 
-	rec.EventData.ResultObjectType = resultObjectType
+	rec.EventData.ObjectType = resultObjectType
 
 	if parameters != nil {
 		rec.EventData.Parameters = parameters.AuditableObject()

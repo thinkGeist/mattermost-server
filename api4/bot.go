@@ -39,7 +39,7 @@ func createBot(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("createBot", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("bot", bot)
+	auditRec.AddEventParametersAuditable("bot", bot)
 
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionCreateBot) {
 		c.SetPermissionError(model.PermissionCreateBot)
@@ -65,7 +65,7 @@ func createBot(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("bot", createdBot) // overwrite meta
+	auditRec.AddEventParametersAuditable("bot", createdBot) // overwrite meta
 
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(createdBot); err != nil {
@@ -103,7 +103,7 @@ func patchBot(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("bot", updatedBot)
+	auditRec.AddEventParametersAuditable("bot", updatedBot)
 
 	if err := json.NewEncoder(w).Encode(updatedBot); err != nil {
 		mlog.Warn("Error while writing response", mlog.Err(err))
@@ -220,7 +220,7 @@ func updateBotActive(c *Context, w http.ResponseWriter, active bool) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("bot", bot)
+	auditRec.AddEventParametersAuditable("bot", bot)
 
 	if err := json.NewEncoder(w).Encode(bot); err != nil {
 		mlog.Warn("Error while writing response", mlog.Err(err))
@@ -260,7 +260,7 @@ func assignBot(c *Context, w http.ResponseWriter, _ *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("bot", bot)
+	auditRec.AddEventParametersAuditable("bot", bot)
 
 	if err := json.NewEncoder(w).Encode(bot); err != nil {
 		mlog.Warn("Error while writing response", mlog.Err(err))
@@ -290,7 +290,7 @@ func convertBotToUser(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("convertBotToUser", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("bot", bot)
+	auditRec.AddEventParametersAuditable("bot", bot)
 	auditRec.AddMeta("userPatch", userPatch)
 	auditRec.AddMeta("set_system_admin", systemAdmin)
 

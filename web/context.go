@@ -68,10 +68,10 @@ func (c *Context) MakeAuditRecord(event string, initialStatus string) *audit.Rec
 			audit.KeyClusterID: c.App.GetClusterId(),
 		},
 		EventData: audit.EventData{
-			Parameters:       map[string]interface{}{},
-			PriorState:       map[string]interface{}{},
-			ResultingState:   map[string]interface{}{},
-			ResultObjectType: "",
+			Parameters:     map[string]interface{}{},
+			PriorState:     map[string]interface{}{},
+			ResultingState: map[string]interface{}{},
+			ObjectType:     "",
 		},
 	}
 

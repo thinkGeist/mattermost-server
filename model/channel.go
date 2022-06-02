@@ -64,17 +64,22 @@ type Channel struct {
 // Example implementation of the Auditable interface.
 func (c *Channel) AuditableObject() map[string]interface{} {
 	return map[string]interface{}{
-		"create_at":         c.CreateAt,
-		"creator_id":        c.CreatorId,
-		"delete_at":         c.DeleteAt,
-		"group_constrained": c.GroupConstrained,
-		"id":                c.Id,
-		"last_post_at":      c.LastPostAt,
-		"last_root_post_at": c.LastRootPostAt,
-		"scheme_id":         c.SchemeId,
-		"team_id":           c.TeamId,
-		"type":              c.Type,
-		"update_at":         c.UpdateAt,
+		"create_at":            c.CreateAt,
+		"creator_id":           c.CreatorId,
+		"delete_at":            c.DeleteAt,
+		"extra_group_at":       c.ExtraUpdateAt,
+		"group_constrained":    c.GroupConstrained,
+		"id":                   c.Id,
+		"last_post_at":         c.LastPostAt,
+		"last_root_post_at":    c.LastRootPostAt,
+		"policy_id":            c.PolicyID,
+		"props":                c.Props,
+		"scheme_id":            c.SchemeId,
+		"shared":               c.Shared,
+		"team_id":              c.TeamId,
+		"total_msg_count_root": c.TotalMsgCountRoot,
+		"type":                 c.Type,
+		"update_at":            c.UpdateAt,
 	}
 }
 

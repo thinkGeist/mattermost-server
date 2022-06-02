@@ -104,10 +104,10 @@ func (a *App) MakeAuditRecord(event string, initialStatus string) *audit.Record 
 			IpAddress: "",
 		},
 		EventData: audit.EventData{
-			Parameters:       map[string]interface{}{},
-			PriorState:       map[string]interface{}{},
-			ResultingState:   map[string]interface{}{},
-			ResultObjectType: "",
+			Parameters:     map[string]interface{}{},
+			PriorState:     map[string]interface{}{},
+			ResultingState: map[string]interface{}{},
+			ObjectType:     "",
 		},
 	}
 
