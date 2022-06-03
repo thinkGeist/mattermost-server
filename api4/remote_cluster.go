@@ -265,7 +265,7 @@ func remoteSetProfileImage(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.SetInvalidURLParam("user_id")
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	imageData := imageArray[0]
 	if err := c.App.SetProfileImage(c.Params.UserId, imageData); err != nil {

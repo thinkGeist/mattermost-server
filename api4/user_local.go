@@ -245,7 +245,7 @@ func localDeleteUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if c.Params.Permanent {
 		err = c.App.PermanentDeleteUser(c.AppContext, user)

@@ -892,7 +892,7 @@ func removeTeamMember(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if team.IsGroupConstrained() && (c.Params.UserId != c.AppContext.Session().UserId) && !user.IsBot {
 		c.Err = model.NewAppError("removeTeamMember", "api.team.remove_member.group_constrained.app_error", nil, "", http.StatusBadRequest)

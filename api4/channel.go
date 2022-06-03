@@ -275,7 +275,7 @@ func updateChannelPrivacy(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	channel.Type = model.ChannelType(privacy)
 

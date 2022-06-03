@@ -122,7 +122,7 @@ func createUser(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("createUser", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 	auditRec.AddMeta("invite_id", inviteId)
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", &user)
 
 	// No permission check required
 
@@ -162,7 +162,7 @@ func createUser(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("user", ruser) // overwrite meta
+	auditRec.AddEventParametersAuditable("user", ruser) // overwrite meta
 
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(ruser); err != nil {
@@ -467,7 +467,7 @@ func setProfileImage(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.SetInvalidURLParam("user_id")
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if (user.IsLDAPUser() || (user.IsSAMLUser() && *c.App.Config().SamlSettings.EnableSyncWithLdap)) &&
 		*c.App.Config().LdapSettings.PictureAttribute != "" {
@@ -513,7 +513,7 @@ func setDefaultProfileImage(c *Context, w http.ResponseWriter, r *http.Request) 
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if err := c.App.SetDefaultProfileImage(user); err != nil {
 		c.Err = err
@@ -1189,7 +1189,7 @@ func updateUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", ouser)
+	auditRec.AddEventParametersAuditable("user", ouser)
 
 	if c.AppContext.Session().IsOAuth {
 		if ouser.Email != user.Email {
@@ -1257,7 +1257,7 @@ func patchUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.SetInvalidParam("user_id")
 		return
 	}
-	auditRec.AddMeta("user", ouser)
+	auditRec.AddEventParametersAuditable("user", ouser)
 
 	// Cannot update a system admin unless user making request is a systemadmin also
 	if ouser.IsSystemAdmin() && !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionManageSystem) {
@@ -1338,7 +1338,7 @@ func deleteUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	// Cannot update a system admin unless user making request is a systemadmin also
 	if user.IsSystemAdmin() && !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionManageSystem) {
@@ -1406,7 +1406,7 @@ func updateUserRoles(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 	c.LogAudit(fmt.Sprintf("user=%s roles=%s", c.Params.UserId, newRoles))
 
 	ReturnStatusOK(w)
@@ -1449,7 +1449,7 @@ func updateUserActive(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if user.IsSystemAdmin() && !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionManageSystem) {
 		c.SetPermissionError(model.PermissionManageSystem)
@@ -1508,7 +1508,7 @@ func updateUserAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user, err := c.App.GetUser(c.Params.UserId); err == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	user, err := c.App.UpdateUserAuth(c.Params.UserId, &userAuth)
@@ -1547,7 +1547,7 @@ func updateUserMfa(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user, err := c.App.GetUser(c.Params.UserId); err == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	props := model.StringInterfaceFromJSON(r.Body)
@@ -1626,7 +1626,7 @@ func updatePassword(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	var canUpdatePassword bool
 	if user, err := c.App.GetUser(c.Params.UserId); err == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 
 		if user.IsSystemAdmin() {
 			canUpdatePassword = c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionManageSystem)
@@ -1833,7 +1833,7 @@ func login(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if user.IsGuest() {
 		if c.App.Channels().License() == nil {
@@ -1913,7 +1913,7 @@ func loginCWS(c *Context, w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, *c.App.Config().ServiceSettings.SiteURL, http.StatusFound)
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 	c.LogAuditWithUserId(user.Id, "authenticated")
 	err = c.App.DoLogin(c.AppContext, w, r, user, "", false, false, false)
 	if err != nil {
@@ -2132,7 +2132,7 @@ func getUserAudits(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer c.LogAuditRec(auditRec)
 
 	if user, err := c.App.GetUser(c.Params.UserId); err == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	if !c.App.SessionHasPermissionToUser(*c.AppContext.Session(), c.Params.UserId) {
@@ -2199,7 +2199,7 @@ func sendVerificationEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 		ReturnStatusOK(w)
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if err = c.App.SendEmailVerification(user, user.Email, redirect); err != nil {
 		// Don't want to leak whether the email is valid or not
@@ -2267,7 +2267,7 @@ func createUserAccessToken(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer c.LogAuditRec(auditRec)
 
 	if user, err := c.App.GetUser(c.Params.UserId); err == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	if c.AppContext.Session().IsOAuth {
@@ -2453,7 +2453,7 @@ func revokeUserAccessToken(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user, errGet := c.App.GetUser(accessToken.UserId); errGet == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	if !c.App.SessionHasPermissionToUserOrBot(*c.AppContext.Session(), accessToken.UserId) {
@@ -2498,7 +2498,7 @@ func disableUserAccessToken(c *Context, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if user, errGet := c.App.GetUser(accessToken.UserId); errGet == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	if !c.App.SessionHasPermissionToUserOrBot(*c.AppContext.Session(), accessToken.UserId) {
@@ -2543,7 +2543,7 @@ func enableUserAccessToken(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user, errGet := c.App.GetUser(accessToken.UserId); errGet == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	if !c.App.SessionHasPermissionToUserOrBot(*c.AppContext.Session(), accessToken.UserId) {
@@ -2583,7 +2583,7 @@ func saveUserTermsOfService(c *Context, w http.ResponseWriter, r *http.Request) 
 	auditRec.AddMeta("accepted", accepted)
 
 	if user, err := c.App.GetUser(userId); err == nil {
-		auditRec.AddMeta("user", user)
+		auditRec.AddEventParametersAuditable("user", user)
 	}
 
 	if _, err := c.App.GetTermsOfService(termsOfServiceId); err != nil {
@@ -2633,7 +2633,7 @@ func promoteGuestToUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if !user.IsGuest() {
 		c.Err = model.NewAppError("Api4.promoteGuestToUser", "api.user.promote_guest_to_user.no_guest.app_error", nil, "", http.StatusNotImplemented)
@@ -2684,7 +2684,7 @@ func demoteUserToGuest(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if user.IsGuest() {
 		c.Err = model.NewAppError("Api4.demoteUserToGuest", "api.user.demote_user_to_guest.already_guest.app_error", nil, "", http.StatusNotImplemented)
@@ -2778,7 +2778,7 @@ func convertUserToBot(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("convertUserToBot", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("user", user)
+	auditRec.AddEventParametersAuditable("user", user)
 
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionManageSystem) {
 		c.SetPermissionError(model.PermissionManageSystem)
