@@ -61,7 +61,7 @@ func localCreateIncomingHook(c *Context, w http.ResponseWriter, r *http.Request)
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("hook", incomingHook)
+	auditRec.AddEventParametersAuditable("hook", incomingHook)
 	c.LogAudit("success")
 
 	w.WriteHeader(http.StatusCreated)

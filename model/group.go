@@ -45,17 +45,17 @@ type Group struct {
 	AllowReference bool        `json:"allow_reference"`
 }
 
-func (g *Group) AuditableObject() map[string]interface{} {
+func (o *Group) AuditableObject() map[string]interface{} {
 	return map[string]interface{}{
-		"id":              g.Id,
-		"source":          g.Source,
-		"remote_id":       g.RemoteId,
-		"create_at":       g.CreateAt,
-		"update_at":       g.UpdateAt,
-		"delete_at":       g.DeleteAt,
-		"has_syncables":   g.HasSyncables,
-		"member_count":    g.MemberCount,
-		"allow_reference": g.AllowReference,
+		"id":              o.Id,
+		"source":          o.Source,
+		"remote_id":       o.RemoteId,
+		"create_at":       o.CreateAt,
+		"update_at":       o.UpdateAt,
+		"delete_at":       o.DeleteAt,
+		"has_syncables":   o.HasSyncables,
+		"member_count":    o.MemberCount,
+		"allow_reference": o.AllowReference,
 	}
 }
 
