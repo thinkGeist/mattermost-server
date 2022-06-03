@@ -52,7 +52,7 @@ func createPost(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("createPost", audit.Fail)
 	defer c.LogAuditRecWithLevel(auditRec, app.LevelContent)
-	auditRec.AddMeta("post", &post)
+	auditRec.AddEventParametersAuditable("post", &post)
 
 	hasPermission := false
 	if c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), post.ChannelId, model.PermissionCreatePost) {
@@ -90,7 +90,7 @@ func createPost(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	auditRec.Success()
-	auditRec.AddMeta("post", rp) // overwrite meta
+	auditRec.AddEventParametersAuditable("post", rp) // overwrite meta
 
 	if setOnlineBool {
 		c.App.SetStatusOnline(c.AppContext.Session().UserId, false)
@@ -476,7 +476,7 @@ func deletePost(c *Context, w http.ResponseWriter, _ *http.Request) {
 		c.SetPermissionError(model.PermissionDeletePost)
 		return
 	}
-	auditRec.AddMeta("post", post)
+	auditRec.AddEventParametersAuditable("post", post)
 
 	if c.AppContext.Session().UserId == post.UserId {
 		if !c.App.SessionHasPermissionToChannel(*c.AppContext.Session(), post.ChannelId, model.PermissionDeletePost) {
@@ -715,7 +715,7 @@ func updatePost(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.SetPermissionError(model.PermissionEditPost)
 		return
 	}
-	auditRec.AddMeta("post", originalPost)
+	auditRec.AddEventParametersAuditable("post", originalPost)
 
 	// Updating the file_ids of a post is not a supported operation and will be ignored
 	post.FileIds = originalPost.FileIds
@@ -766,7 +766,7 @@ func patchPost(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.SetPermissionError(model.PermissionEditPost)
 		return
 	}
-	auditRec.AddMeta("post", originalPost)
+	auditRec.AddEventParametersAuditable("post", originalPost)
 
 	var permission *model.Permission
 	if c.AppContext.Session().UserId == originalPost.UserId {
@@ -841,7 +841,7 @@ func saveIsPinnedPost(c *Context, w http.ResponseWriter, isPinned bool) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("post", post)
+	auditRec.AddEventParametersAuditable("post", post)
 
 	patch := &model.PostPatch{}
 	patch.IsPinned = model.NewBool(isPinned)
