@@ -261,7 +261,7 @@ func patchGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("patch", group)
+	auditRec.AddEventParametersAuditable("patch", group)
 
 	b, marshalErr := json.Marshal(group)
 	if marshalErr != nil {

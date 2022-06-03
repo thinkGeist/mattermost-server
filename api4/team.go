@@ -648,7 +648,7 @@ func addTeamMember(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("addTeamMember", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddEventParametersAuditable("team_member", member)
+	auditRec.AddEventParametersAuditable("team_member", &member)
 
 	if member.UserId == c.AppContext.Session().UserId {
 		var team *model.Team

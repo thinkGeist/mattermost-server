@@ -1303,7 +1303,7 @@ func patchUser(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.App.SetAutoResponderStatus(ruser, ouser.NotifyProps)
 
 	auditRec.Success()
-	auditRec.AddMeta("patch", ruser)
+	auditRec.AddEventParametersAuditable("patch", ruser)
 	c.LogAudit("")
 
 	if err := json.NewEncoder(w).Encode(ruser); err != nil {

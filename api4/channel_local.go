@@ -307,7 +307,7 @@ func localPatchChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec.Success()
 	c.LogAudit("")
-	auditRec.AddMeta("patch", rchannel)
+	auditRec.AddEventParametersAuditable("patch", rchannel)
 
 	if err := json.NewEncoder(w).Encode(rchannel); err != nil {
 		mlog.Warn("Error while writing response", mlog.Err(err))

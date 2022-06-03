@@ -208,7 +208,7 @@ func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("patch", role)
+	auditRec.AddEventParametersAuditable("patch", role)
 	c.LogAudit("")
 
 	if err := json.NewEncoder(w).Encode(role); err != nil {

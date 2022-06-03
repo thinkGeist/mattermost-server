@@ -212,7 +212,7 @@ func patchScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("patch", scheme)
+	auditRec.AddEventParametersAuditable("patch", scheme)
 
 	auditRec.Success()
 	c.LogAudit("")

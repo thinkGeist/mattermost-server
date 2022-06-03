@@ -69,7 +69,7 @@ type Job struct {
 	Data           StringMap `json:"data"`
 }
 
-func (o *Job) AuditableFunction() map[string]interface{} {
+func (o *Job) AuditableObject() map[string]interface{} {
 	return map[string]interface{}{
 		"id":               o.Id,
 		"type":             o.Type,

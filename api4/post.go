@@ -787,7 +787,7 @@ func patchPost(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("patch", patchedPost)
+	auditRec.AddEventParametersAuditable("patch", patchedPost)
 
 	if err := patchedPost.EncodeJSON(w); err != nil {
 		mlog.Warn("Error while writing response", mlog.Err(err))
@@ -851,7 +851,7 @@ func saveIsPinnedPost(c *Context, w http.ResponseWriter, isPinned bool) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("patch", patchedPost)
+	auditRec.AddEventParametersAuditable("patch", patchedPost)
 
 	auditRec.Success()
 	ReturnStatusOK(w)

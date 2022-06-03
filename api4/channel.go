@@ -367,7 +367,7 @@ func patchChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec.Success()
 	c.LogAudit("")
-	auditRec.AddMeta("patch", rchannel)
+	auditRec.AddEventParametersAuditable("patch", rchannel)
 
 	if err := json.NewEncoder(w).Encode(rchannel); err != nil {
 		mlog.Warn("Error while writing response", mlog.Err(err))
@@ -2024,7 +2024,7 @@ func patchChannelModerations(c *Context, w http.ResponseWriter, r *http.Request)
 		c.Err = appErr
 		return
 	}
-	auditRec.AddMeta("patch", channelModerationsPatch)
+	auditRec.AddEventParameter("patch", channelModerationsPatch)
 
 	b, marshalErr := json.Marshal(channelModerations)
 	if marshalErr != nil {
