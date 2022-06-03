@@ -1660,7 +1660,7 @@ func updateTeamScheme(c *Context, w http.ResponseWriter, r *http.Request) {
 			c.Err = err
 			return
 		}
-		auditRec.AddMeta("scheme", scheme)
+		auditRec.AddEventParametersAuditable("scheme", scheme)
 
 		if scheme.Scope != model.SchemeScopeTeam {
 			c.Err = model.NewAppError("Api4.UpdateTeamScheme", "api.team.update_team_scheme.scheme_scope.error", nil, "", http.StatusBadRequest)

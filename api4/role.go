@@ -129,7 +129,7 @@ func patchRole(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("role", oldRole)
+	auditRec.AddEventParametersAuditable("role", oldRole)
 
 	// manage_system permission is required to patch system_admin
 	requiredPermission := model.PermissionSysconsoleWriteUserManagementPermissions
