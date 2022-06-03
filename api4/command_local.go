@@ -41,7 +41,7 @@ func localCreateCommand(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec.Success()
 	c.LogAudit("success")
-	auditRec.AddMeta("command", rcmd)
+	auditRec.AddEventParametersAuditable("command", rcmd)
 
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(rcmd); err != nil {
