@@ -176,7 +176,7 @@ func linkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if group != nil {
-		auditRec.AddMeta("group", group)
+		auditRec.AddEventParametersAuditable("group", group)
 	}
 
 	var status int
@@ -260,7 +260,7 @@ func unlinkLdapGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	auditRec.AddMeta("group", group)
+	auditRec.AddEventParametersAuditable("group", group)
 
 	if group.DeleteAt == 0 {
 		_, err = c.App.DeleteGroup(group.Id)

@@ -164,7 +164,7 @@ func createGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("createGroup", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("group", group)
+	auditRec.AddEventParametersAuditable("group", group)
 
 	newGroup, err := c.App.CreateGroupWithUserIds(group)
 	if err != nil {
@@ -172,7 +172,7 @@ func createGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditRec.AddMeta("group", newGroup)
+	auditRec.AddEventParametersAuditable("group", newGroup)
 	js, jsonErr := json.Marshal(newGroup)
 	if jsonErr != nil {
 		c.Err = model.NewAppError("createGroup", "api.marshal_error", nil, jsonErr.Error(), http.StatusInternalServerError)
@@ -225,7 +225,7 @@ func patchGroup(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("patchGroup", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("group", group)
+	auditRec.AddEventParametersAuditable("group", group)
 
 	if groupPatch.AllowReference != nil && *groupPatch.AllowReference {
 		if groupPatch.Name == nil {
