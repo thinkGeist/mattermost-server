@@ -116,7 +116,7 @@ func createPolicy(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 	auditRec := c.MakeAuditRecord("createPolicy", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("policy", policy)
+	auditRec.AddEventParametersAuditable("policy", &policy)
 
 	if !c.App.SessionHasPermissionTo(*c.AppContext.Session(), model.PermissionSysconsoleWriteComplianceDataRetentionPolicy) {
 		c.SetPermissionError(model.PermissionSysconsoleWriteComplianceDataRetentionPolicy)
@@ -129,7 +129,7 @@ func createPolicy(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditRec.AddMeta("policy", newPolicy) // overwrite meta
+	auditRec.AddEventParametersAuditable("policy", newPolicy) // overwrite meta
 	js, jsonErr := json.Marshal(newPolicy)
 	if jsonErr != nil {
 		c.Err = model.NewAppError("createPolicy", "api.marshal_error", nil, jsonErr.Error(), http.StatusInternalServerError)

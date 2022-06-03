@@ -38,6 +38,14 @@ type RetentionPolicyWithTeamAndChannelCounts struct {
 	TeamCount    int64 `json:"team_count"`
 }
 
+func (o *RetentionPolicyWithTeamAndChannelCounts) AuditableObject() map[string]interface{} {
+	return map[string]interface{}{
+		"retention_policy": o.RetentionPolicy,
+		"channel_count":    o.ChannelCount,
+		"team_count":       o.TeamCount,
+	}
+}
+
 type RetentionPolicyChannel struct {
 	PolicyID  string `db:"PolicyId"`
 	ChannelID string `db:"ChannelId"`
