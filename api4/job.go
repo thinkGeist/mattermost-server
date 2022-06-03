@@ -112,7 +112,7 @@ func createJob(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("createJob", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("job", job)
+	auditRec.AddEventParametersAuditable("job", job)
 
 	hasPermission, permissionRequired := c.App.SessionHasPermissionToCreateJob(*c.AppContext.Session(), &job)
 	if permissionRequired == nil {
@@ -132,7 +132,7 @@ func createJob(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditRec.Success()
-	auditRec.AddMeta("job", rjob) // overwrite meta
+	auditRec.AddEventParametersAuditable("job", rjob) // overwrite meta
 
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(rjob); err != nil {
