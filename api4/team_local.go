@@ -47,7 +47,7 @@ func localDeleteTeam(c *Context, w http.ResponseWriter, r *http.Request) {
 	defer c.LogAuditRec(auditRec)
 
 	if team, err := c.App.GetTeam(c.Params.TeamId); err == nil {
-		auditRec.AddMeta("team", team)
+		auditRec.AddEventParametersAuditable("team", team)
 	}
 
 	var err *model.AppError
@@ -249,7 +249,7 @@ func localCreateTeam(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	auditRec := c.MakeAuditRecord("localCreateTeam", audit.Fail)
 	defer c.LogAuditRec(auditRec)
-	auditRec.AddMeta("team", team)
+	auditRec.AddEventParametersAuditable("team", &team)
 
 	rteam, err := c.App.CreateTeam(c.AppContext, &team)
 	if err != nil {
@@ -259,7 +259,7 @@ func localCreateTeam(c *Context, w http.ResponseWriter, r *http.Request) {
 	// Don't sanitize the team here since the user will be a team admin and their session won't reflect that yet
 
 	auditRec.Success()
-	auditRec.AddMeta("team", team) // overwrite meta
+	auditRec.AddEventParametersAuditable("team", &team) // overwrite meta
 
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(rteam); err != nil {
