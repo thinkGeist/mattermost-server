@@ -24,7 +24,6 @@ config/logging.json
 
 # Enterprise & products imports files
 imports/imports.go
-imports/boards_imports.go
 
 # go.work file
 go.work
@@ -106,7 +105,7 @@ api/data/*
 api4/data/*
 app/data/*
 
-enterprise
+/enterprise
 
 cover.out
 ecover.out
